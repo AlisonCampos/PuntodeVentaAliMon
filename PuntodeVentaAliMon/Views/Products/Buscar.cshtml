@@ -1,0 +1,66 @@
+﻿@model List<ProProducto>
+@using PuntodeVentaAliMon.Models
+@{
+    ViewBag.Title = "Buscar productos";
+    var categorias = new PuntoVentaContext().ProCatCategorias.ToList();
+    var subcategorias = new PuntoVentaContext().ProCatSubcategorias.ToList();
+}
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("Buscar", "Products", FormMethod.Get))
+{
+    <p>
+        Nombre del producto: @Html.TextBox("nombreProducto")
+        Categoría: @Html.DropDownList("idProCatCategoria", new SelectList(categorias, "id", "nombre"), "Selecciona una categoría")
+        Subcategoría: @Html.DropDownList("idProCatSubcategoria", new SelectList(subcategorias, "id", "nombre"), "Selecciona una subcategoría")
+        <input type="submit" value="Buscar" />
+    </p>
+}
+@Html.ActionLink("Agregar Nuevo Producto", "Agregar", null, new { @class = "btn btn-primary" })
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre del producto</th>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th>Subcategoría</th>
+            <th>Máximo</th>
+            <th>Mínimo</th>
+            <th>Stock</th>
+            <th>Costo</th>
+            <th>Precio</th>
+            <th>Imagen</th>
+            @if (Session["UserType"] != null && Convert.ToInt32(Session["UserType"]) == 1) // Administrador
+            {
+                <th></th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var producto in Model)
+        {
+            <tr>
+                <td>@producto.nombreProducto</td>
+                <td>@producto.descripcion</td>
+                <td>@producto.ProCatCategoria.nombre</td>
+                <td>@producto.ProCatSubcategoria.nombre</td>
+                <td>@producto.maximo</td>
+                <td>@producto.minimo</td>
+                <td>@producto.stock</td>
+                <td>@producto.costo</td>
+                <td>@producto.precio</td>
+                <td>
+                    <img src="@Url.Action("MostrarImagen", new { id = producto.id })" alt="Imagen del producto" />
+                </td>
+                @if (Session["UserType"] != null && Convert.ToInt32(Session["UserType"]) == 1) // Administrador
+                {
+                    <td>
+                        @Html.ActionLink("Editar", "Editar", new { id = producto.id }) |
+                        @Html.ActionLink("Eliminar", "Eliminar", new { id = producto.id })
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

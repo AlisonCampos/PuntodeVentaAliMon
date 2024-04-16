@@ -1,0 +1,28 @@
+﻿@model UsuUsuario
+@using PuntodeVentaAliMon.Models
+
+<h2>¿Estás seguro de que quieres eliminar este usuario?</h2>
+
+<div>
+    <h4>Usuario</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.nombreUsuario)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.nombreUsuario)
+        </dd>
+        <!-- Puedes agregar más detalles aquí si lo deseas -->
+    </dl>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Eliminar" class="btn btn-default" /> |
+            @Html.ActionLink("Cancelar", "Buscar")
+        </div>
+    }
+</div>

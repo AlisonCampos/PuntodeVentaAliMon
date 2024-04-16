@@ -1,0 +1,141 @@
+﻿@{
+    ViewBag.Title = "Crear Venta";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("FinalizarVenta","Ventas",FormMethod.Post))
+{
+    <div>
+        @Html.DropDownList("idProCatCategoria", (SelectList)ViewBag.Categorias, "Seleccione una Categoría", new { id = "categorias" })
+    </div>
+    <div>
+        <select id="subcategorias" name="idProCatSubcategoria">
+            <option value="">Seleccione una Subcategoría</option>
+        </select>
+    </div>
+    <div>
+        <select id="productos" name="idProProducto">
+            <option value="">Seleccione un Producto</option>
+        </select>
+    </div>
+    <div id="detallesProducto">
+        <p>Precio: <span id="precioProducto">-</span></p>
+        <p>Stock: <span id="stockProducto">-</span></p>
+        <p>Cantidad: <input type="number" id="cantidad" value="1" min="1" /></p>
+        <p>Total: $<span id="total">0.00</span></p>
+        <button type="button" id="agregarAlTicket">Agregar al Ticket</button>
+    </div>
+
+    <div id="ticket">
+        <h3>Folio: @DateTime.Now.ToString("yyyyMMdd")</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+               
+            </tbody>
+        </table>
+    </div>
+    <button type="submit" id="finalizarVenta" style="margin-top: 20px;">Finalizar Venta</button>
+
+}
+
+@section Scripts {
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var precioActual = 0.00;
+
+            $('#categorias').change(function () {
+                var idProCatCategoria = $(this).val();
+                $('#subcategorias').empty().append('<option value="">Seleccione una Subcategoría</option>');
+                $('#productos').empty().append('<option value="">Seleccione un Producto</option>');
+                if (idProCatCategoria) {
+                    $.ajax({
+                        url: '@Url.Action("GetSubcategorias", "Ventas")',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { idProCatCategoria: idProCatCategoria },
+                        success: function (subcategorias) {
+                            $.each(subcategorias, function (i, subcategoria) {
+                                $('#subcategorias').append($('<option></option>').val(subcategoria.id).html(subcategoria.nombre));
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#subcategorias').change(function () {
+                var idProCatSubcategoria = $(this).val();
+                $('#productos').empty().append('<option value="">Seleccione un Producto</option>');
+                if (idProCatSubcategoria) {
+                    $.ajax({
+                        url: '@Url.Action("GetProductos", "Ventas")',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { idProCatSubcategoria: idProCatSubcategoria },
+                        success: function (productos) {
+                            $.each(productos, function (i, producto) {
+                                $('#productos').append($('<option></option>').val(producto.id).html(producto.nombreProducto));
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#productos').change(function () {
+                var idProProducto = $(this).val();
+                if (idProProducto) {
+                    $.ajax({
+                        url: '@Url.Action("GetDetallesProducto", "Ventas")',
+                        type: 'GET',
+                        dataType: 'json',
+                        data: { idProProducto: idProProducto },
+                        success: function (producto) {
+                            precioActual = producto.precio;
+                            $('#precioProducto').text(producto.precio);
+                            $('#stockProducto').text(producto.stock);
+                            calcularTotal();
+                        }
+                    });
+                } else {
+                    resetDetallesProducto();
+                }
+            });
+
+            $('#cantidad').change(calcularTotal);
+
+            function calcularTotal() {
+                var cantidad = $('#cantidad').val();
+                var total = precioActual * cantidad;
+                $('#total').text(total.toFixed(2));
+            }
+
+            function resetDetallesProducto() {
+                precioActual = 0.00;
+                $('#precioProducto').text('-');
+                $('#stockProducto').text('-');
+                $('#total').text('0.00');
+            }
+
+            $('#agregarAlTicket').click(function() {
+                var productoNombre = $("#productos option:selected").text();
+                var cantidad = $('#cantidad').val();
+                var total = $('#total').text();
+
+                $('#ticket tbody').append('<tr><td>' + productoNombre + '</td><td>' + cantidad + '</td><td>$' + total + '</td></tr>');
+                resetDetallesProducto();
+                $('#productos').val('');
+                $('#cantidad').val(1);
+            });
+            
+
+        });
+    </script>
+}

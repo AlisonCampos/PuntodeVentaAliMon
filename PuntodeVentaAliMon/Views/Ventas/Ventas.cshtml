@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Ventas";
+}
+
+<h2>@ViewBag.Title</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div>
+    <!-- Aquí podrías mostrar el contenido de las ventas, por ejemplo una tabla con información de las ventas realizadas -->
+    <!-- Puedes usar Razor para iterar sobre las ventas y mostrarlas en la tabla -->
+    <!-- Por ejemplo, si tienes una lista de ventas llamada Model, podrías hacer algo como: -->
+    @if (Model != null && Model.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Fecha de Venta</th>
+                    <th>Estado</th>
+                    <!-- Otros encabezados de columna según tu modelo de datos -->
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var venta in Model)
+                {
+                    <tr>
+                        <td>@venta.Folio</td>
+                        <td>@venta.FechaVenta.ToShortDateString()</td>
+                        <td>@venta.Estado</td>
+                        <!-- Otras columnas según tu modelo de datos -->
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No hay ventas registradas.</p>
+    }
+</div>

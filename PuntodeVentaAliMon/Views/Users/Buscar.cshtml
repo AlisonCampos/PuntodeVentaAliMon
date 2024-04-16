@@ -1,0 +1,55 @@
+﻿@model List<UsuUsuario>
+@using PuntodeVentaAliMon.Models
+@{
+    ViewBag.Title = "Buscar usuarios";
+    var estados = new PuntoVentaContext().UsuCatEstado.ToList();
+    var tiposUsuario = new PuntoVentaContext().UsuCatTipoUsuarios.ToList();
+}
+
+<h2>@ViewBag.Title</h2>
+
+@using (Html.BeginForm("Buscar", "Users", FormMethod.Get))
+{
+    <p>
+        Nombre del usuario: @Html.TextBox("nombreUsuario")
+        Estado: @Html.DropDownList("usuCatEstado", new SelectList(estados, "id", "nombre"), "Selecciona un estado")
+        Tipo de Usuario: @Html.DropDownList("usuCatTipoUsuario", new SelectList(tiposUsuario, "id", "nombre"), "Selecciona un tipo de usuario")
+        <input type="submit" value="Buscar" />
+    </p>
+}
+
+@if (Session["UserType"] != null && Convert.ToInt32(Session["UserType"]) == 1) // Administrador
+{
+    @Html.ActionLink("Agregar Nuevo Usuario", "Create", null, new { @class = "btn btn-primary" })
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre de Usuario</th>
+            <th>Estado</th>
+            <th>Tipo de Usuario</th>
+            @if (Session["UserType"] != null && Convert.ToInt32(Session["UserType"]) == 1) // Administrador
+            {
+                <th>Acciones</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var usuario in Model)
+        {
+            <tr>
+                <td>@usuario.nombreUsuario</td>
+                <td>@usuario.Estado.Nombre</td>
+                <td>@usuario.TipoUsuario.Nombre</td>
+                @if (Session["UserType"] != null && Convert.ToInt32(Session["UserType"]) == 1) // Administrador
+                {
+                    <td>
+                        @Html.ActionLink("Editar", "Edit", new { id = usuario.Id }) |
+                        @Html.ActionLink("Eliminar", "Delete", new { id = usuario.Id })
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
